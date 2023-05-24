@@ -20,7 +20,7 @@ public class DBconnection {
             }
         }
         catch (Exception e){
-            System.out.println("com.models.DBconnection.getConnection()"+e.getMessage());
+            System.out.println("com.models.DBconnection.getConnection() "+e.getMessage());
         }
         return connection;
     }

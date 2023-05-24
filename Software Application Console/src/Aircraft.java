@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 public class Aircraft {
     private int Airline_id;
@@ -12,31 +13,6 @@ public class Aircraft {
         Airline_id = airline_id;
         this.model = model;
         this.total_Num_seats = total_Num_seats;
-    }
-
-    public int getAirline_id() {
-        return Airline_id;
-    }
-    public void setAirline_id(int airline_id) {
-        Airline_id = airline_id;
-    }
-    public String getModel() {
-        return model;
-    }
-    public void setModel(String model) {
-        this.model = model;
-    }
-    public int getTotal_Num_seats() {
-        return total_Num_seats;
-    }
-    public void setTotal_Num_seats(int total_Num_seats) {
-        this.total_Num_seats = total_Num_seats;
-    }
-    public boolean isStatus_Aircraft() {
-        return status_Aircraft;
-    }
-    public void setStatus_Aircraft(boolean status_Aircraft) {
-        this.status_Aircraft = status_Aircraft;
     }
 
     public void InsertAircraft(){
@@ -55,16 +31,25 @@ public class Aircraft {
     }
     public void printAircrafts(){
         try {
-            String query = "SELECT * FROM Aircraft";
+            String sql = "SELECT Af.*, Al.Name_Airline AS AirlineName " +
+                    "FROM Aircraft Af " +
+                    "LEFT OUTER JOIN Airline Al ON Af.Airline_id = Al.id";
+
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            Airline Ar=new Airline();
+            ResultSet rs = stmt.executeQuery(sql);
+            ArrayList Ar = new ArrayList();int k = 1;
             while (rs.next()) {
-                Airline_id = rs.getInt("Airline_id");
-                model = rs.getString("model");
-                total_Num_seats = rs.getInt("total_Num_seats");
-                status_Aircraft = rs.getBoolean("status_Aircraft");
-                System.out.println("Aircraft model "+model+" Airline name "+Ar.NameAirlineid(Airline_id)+" Number seats "+total_Num_seats+" Status "+status_Aircraft);
+                Ar.add("Aircraft id " + rs.getInt("id"));
+                Ar.add("Aircraft model " + rs.getString("model"));
+                Ar.add("Number seats " + rs.getInt("total_Num_seats"));
+                Ar.add("Status " +rs.getBoolean("status_Aircraft"));
+                Ar.add("Airline name " + rs.getString("AirlineName"));
+                System.out.println("(" + k + ") " + Ar.get(0));
+                for (int i = 1; i < Ar.size(); i++) {
+                    System.out.println("\t" + Ar.get(i));
+                }
+                k++;
+                Ar.clear();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -72,14 +57,13 @@ public class Aircraft {
     }
     public boolean ExistAircraft(String model){
         try {
-            String query = "SELECT * FROM Aircraft";
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            while (rs.next()) {
-                this.model = rs.getString("model");
-                if(this.model.equals(model)){
-                    return true;
-                }
+            String sql = "SELECT COUNT(*) AS count FROM Aircraft WHERE model = ?";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, model);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()) {
+                int count = rs.getInt("count");
+                return count > 0;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -101,7 +85,7 @@ public class Aircraft {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return "null";
     }
     public String Namelinebycraftid(int searchId){
         try {
@@ -121,14 +105,32 @@ public class Aircraft {
         }
         return "null";
     }
+    public void ChangeStatus(int Aircraft_id,int status){
+        String query = "UPDATE Aircraft SET status_Aircraft = ? WHERE id = ?";
+        PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, status);
+            stmt.setInt(2, Aircraft_id);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public boolean GetStatus(int Aircraft_id){
+        try {
+            String sql = "SELECT COUNT(*) AS count FROM Aircraft WHERE id = ? AND status_Aircraft = 1";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, Aircraft_id);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()) {
+                int count = rs.getInt("count");
+                return count > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
 }
-
-
-
-
-
-
-
-
-
-

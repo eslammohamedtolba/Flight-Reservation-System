@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 public class Airline {
     private String Name_Airline;
@@ -8,19 +9,6 @@ public class Airline {
     public Airline(){}
     public Airline(String name_Airline, String headquarters) {
         Name_Airline = name_Airline;
-        Headquarters = headquarters;
-    }
-
-    public String getName_Airline() {
-        return Name_Airline;
-    }
-    public void setName_Airline(String name_Airline) {
-        Name_Airline = name_Airline;
-    }
-    public String getHeadquarters() {
-        return Headquarters;
-    }
-    public void setHeadquarters(String headquarters) {
         Headquarters = headquarters;
     }
 
@@ -41,10 +29,16 @@ public class Airline {
             String query = "SELECT * FROM Airline";
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(query);
+            ArrayList Ar = new ArrayList();int k = 1;
             while (rs.next()) {
-                Name_Airline = rs.getString("Name_Airline");
-                Headquarters = rs.getString("Headquarters");
-                System.out.println("Airline name "+Name_Airline+" Headquarters "+Headquarters);
+                Ar.add("Airline name "+rs.getString("Name_Airline"));
+                Ar.add("Headquarters "+rs.getString("Headquarters"));
+                System.out.println("(" + k + ") " + Ar.get(0));
+                for (int i = 1; i < Ar.size(); i++) {
+                    System.out.println("\t" + Ar.get(i));
+                }
+                k++;
+                Ar.clear();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -81,6 +75,6 @@ public class Airline {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return "null";
     }
 }

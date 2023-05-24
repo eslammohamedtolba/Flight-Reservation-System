@@ -1,19 +1,21 @@
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class Passenger {
     private int SSN;
     private String Fname;
     private String Sname;
     private String Email;
-    private LocalTime Birthday;
+    private LocalDate Birthday;
     private String phone;
     private String passport;
     private Connection connection=DBconnection.getConnection();
 
     public Passenger(){}
-    public Passenger(int SSN, String fname, String sname, String email, LocalTime birthday, String phone, String passport) {
+    public Passenger(int SSN, String fname, String sname, String email, LocalDate birthday, String phone, String passport) {
         this.SSN = SSN;
         Fname = fname;
         Sname = sname;
@@ -23,44 +25,23 @@ public class Passenger {
         this.passport = passport;
     }
 
-    public int getSSN() {
-        return SSN;
-    }
     public void setSSN(int SSN) {
         this.SSN = SSN;
-    }
-    public String getFname() {
-        return Fname;
     }
     public void setFname(String fname) {
         Fname = fname;
     }
-    public String getSname() {
-        return Sname;
-    }
     public void setSname(String sname) {
         Sname = sname;
-    }
-    public String getEmail() {
-        return Email;
     }
     public void setEmail(String email) {
         Email = email;
     }
-    public LocalTime getBirthday() {
-        return Birthday;
-    }
-    public void setBirthday(LocalTime birthday) {
+    public void setBirthday(LocalDate birthday) {
         Birthday = birthday;
-    }
-    public String getPhone() {
-        return phone;
     }
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-    public String getPassport() {
-        return passport;
     }
     public void setPassport(String passport) {
         this.passport = passport;
@@ -74,7 +55,7 @@ public class Passenger {
             stmt.setString(2, Fname);
             stmt.setString(3, Sname);
             stmt.setString(4, Email);
-            stmt.setTime(5, Time.valueOf(Birthday)); // convert LocalTime to java.sql.Time
+            stmt.setDate(5, Date.valueOf(Birthday)); // convert LocalTime to java.sql.Time
             stmt.setString(6, phone);
             stmt.setString(7, passport);
             stmt.executeUpdate();
@@ -103,6 +84,7 @@ public class Passenger {
         try {
             Booking b=new Booking();
             b.DeleteBookings(ssn);
+
             stmt = connection.createStatement();
             String sql = "DELETE FROM Passenger WHERE SSN = " + ssn;
             stmt.executeUpdate(sql);
@@ -110,24 +92,50 @@ public class Passenger {
             throw new RuntimeException(e);
         }
     }
+    public ArrayList<ArrayList> BookingsForPassengers(){
+        ArrayList<ArrayList>AAList=new ArrayList<>();
+        try {
+            String sql = "SELECT COUNT(*) AS count , p.SSN as PSSN " +
+                    "FROM Booking b " +
+                    "join Passenger p on b.passenger_ssn=p.SSN " +
+                    "group by p.SSN " +
+                    "order by count desc";
+
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                ArrayList Ar=new ArrayList();
+                Ar.add(rs.getInt("PSSN"));
+                Ar.add(rs.getInt("count"));
+                AAList.add(Ar);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return AAList;
+    }
     public void printPassengers(){
         try {
             String query = "SELECT * FROM Passenger";
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(query);
+            ArrayList Ar = new ArrayList();int k = 1;
             while (rs.next()) {
-                int id = rs.getInt("id");
-                SSN = rs.getInt("ssn");
-                Fname = rs.getString("fname");
-                Sname = rs.getString("sname");
-                Email = rs.getString("email");
-                Birthday = rs.getTime("birthday").toLocalTime();
-                phone = rs.getString("phone");
-                passport = rs.getString("passport");
-
-                System.out.println(" SSN "+SSN+" Fname "+Fname+" Sname "+Sname+" Email "+Email+" birthday "+Birthday+ " phone "+phone+" passport "+passport);
+                Ar.add("SSN "+rs.getInt("ssn"));
+                Ar.add("Fname "+rs.getString("fname"));
+                Ar.add("Sname "+rs.getString("sname"));
+                Ar.add("Email "+rs.getString("email"));
+                Ar.add("birthday "+rs.getDate("birthday"));
+                Ar.add("phone "+rs.getString("phone"));
+                Ar.add("passport "+rs.getString("passport"));
+                System.out.println("(" + k + ") " + Ar.get(0));
+                for (int i = 1; i < Ar.size(); i++) {
+                    System.out.println("\t" + Ar.get(i));
+                }
+                k++;
+                Ar.clear();
             }
-        } catch (SQLException e) {
+        }catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

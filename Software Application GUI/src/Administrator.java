@@ -73,7 +73,7 @@ public class Administrator {
             while (rs.next()) {
                 Username = rs.getString("username");
                 Password = rs.getString("password_ADmin");
-                if(this.Username.equals(username) && this.Password.equals(username)){
+                if(this.Username.equals(username) && this.Password.equals(password)){
                     return true;
                 }
             }

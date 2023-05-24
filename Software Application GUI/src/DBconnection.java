@@ -12,15 +12,15 @@ public class DBconnection {
         try {
             Class.forName(driver);
             connection = DriverManager.getConnection(URL,Username,password);
-            if(connection==null){
-                System.out.println("the connection is null");
-            }
-            else{
-                System.out.println("the connection is not null");
-            }
+//            if(connection==null){
+//                System.out.println("the connection is null");
+//            }
+//            else{
+//                System.out.println("the connection is not null");
+//            }
         }
         catch (Exception e){
-            System.out.println("com.models.DBconnection.getConnection()"+e.getMessage());
+            System.out.println("com.models.DBconnection.getConnection() "+e.getMessage());
         }
         return connection;
     }
